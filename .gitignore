@@ -1,1 +1,3 @@
 .env
+/master_db/
+/slave_db/
