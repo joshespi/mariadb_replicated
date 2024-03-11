@@ -1,4 +1,4 @@
-# MariaDB_Replicated
+# MariaDB Replicated Boilerplate
 
 ## Installation
 
