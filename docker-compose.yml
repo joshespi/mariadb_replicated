@@ -1,0 +1,61 @@
+version: "3"
+services:
+  db_master:
+    container_name: db_master
+    build:
+      context: .
+      dockerfile: ./master.Dockerfile
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    env_file: .env
+    restart: always
+    volumes:
+      - ./master_db:/var/lib/mysql
+    ports:
+      - "3310:3306"
+    networks:
+      - backend
+
+  db_slave:
+    container_name: db_slave
+    build:
+      context: .
+      dockerfile: ./slave.Dockerfile
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    env_file: .env
+    restart: always
+    volumes:
+      - ./slave_db:/var/lib/mysql
+    networks:
+      - backend
+    ports:
+      - "3311:3306"
+    depends_on:
+      - db_master
+
+  repl_myadmin:
+    container_name: repl_myadmin
+    image: phpmyadmin:latest
+    networks:
+      - backend
+    depends_on:
+      - db_master
+      - db_slave
+    environment:
+      PMA_HOSTS: db_master,db_slave
+    ports:
+      - "8085:80"
+
+networks:
+  backend:
+
+volumes:
+  master_db:
+  slave_db:
